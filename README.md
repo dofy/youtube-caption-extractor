@@ -55,7 +55,7 @@ fetchVideoDetails(videoID, lang, proxyUrl);
 
 ## API
 
-### getSubtitles({ videoID, lang })
+### getSubtitles({ videoID, lang, proxyUrl })
 
 - `videoID` (string) - The YouTube video ID
 - `lang` (string) - Optional, the language code for the subtitles (e.g., 'en', 'fr', 'de'). Default is 'en' (English)
@@ -67,7 +67,7 @@ Returns a promise that resolves to an array of subtitle objects with the followi
 - `dur` (string) - The duration of the caption in seconds
 - `text` (string) - The text content of the caption
 
-### getVideoDetails({ videoID, lang })
+### getVideoDetails({ videoID, lang, proxyUrl })
 
 - `videoID` (string) - The YouTube video ID
 - `lang` (string) - Optional, the language code for the subtitles (e.g., 'en', 'fr', 'de'). Default is 'en' (English)
