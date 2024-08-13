@@ -14,7 +14,8 @@
     "scraper",
     "parser",
     "video",
-    "transcript"
+    "transcription",
+    "proxy"
   ],
   "author": {
     "name": "Seven Yu",
