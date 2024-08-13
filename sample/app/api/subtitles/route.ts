@@ -13,7 +13,9 @@ export async function GET(request: NextRequest) {
 
   try {
     const subtitles = await getSubtitles({ videoID, lang, proxyURL });
+    console.log("🚀 ~ GET ~ subtitles:", subtitles)
     const videoDetails = await getVideoDetails({ videoID, lang, proxyURL });
+    console.log("🚀 ~ GET ~ videoDetails:", videoDetails)
     return NextResponse.json({ subtitles, videoDetails }, { status: 200 });
   } catch (error) {
     return NextResponse.json(

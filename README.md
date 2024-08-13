@@ -2,7 +2,7 @@
 
 A simple and efficient package to scrape and parse captions (subtitles) from YouTube videos, supporting both user-submitted and auto-generated captions with language options. In addition, it can also retrieve the title and description of the YouTube video.
 
-## What's new in v1.5.0
+## What's new in v1.5.x
 
 - Proxy Agent support: The package now supports using a proxy agent to make requests, allowing you to fetch subtitles from YouTube behind a proxy server.
 

@@ -1,8 +1,9 @@
 {
   "name": "@dofy/youtube-caption-extractor",
-  "version": "1.5.4",
+  "version": "1.5.10",
   "description": "A simple and efficient package to scrape and parse captions (subtitles) from YouTube videos, supporting both user-submitted and auto-generated captions with language options.",
   "main": "dist/index.js",
+  "type": "module",
   "scripts": {
     "test": "jest",
     "build": "tsc"

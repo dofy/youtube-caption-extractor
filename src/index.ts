@@ -41,12 +41,11 @@ const fetchThroughProxy = async (targetUrl: string, proxyUrl: string) => {
   try {
     const response = await NodeFetch(targetUrl, { agent: proxyAgent });
     if (!response.ok) {
-      throw new Error(`Failed to fetch ${targetUrl} through proxy ${proxyUrl}`);
+      throw new Error(`(1) Failed to fetch ${targetUrl} via proxy ${proxyUrl}`);
     }
     return response;
-  } catch (error) {
-    console.error(error);
-    throw new Error(`Failed to fetch ${targetUrl} through proxy ${proxyUrl}`);
+  } catch (_error) {
+    throw new Error(`(0) Failed to fetch ${targetUrl} via proxy ${proxyUrl}`);
   } finally {
     proxyAgent.destroy();
   }
@@ -191,7 +190,6 @@ export const getSubtitles = async ({
     ? await fetchThroughProxy(youtubeUrl, proxyURL)
     : await fetch(youtubeUrl);
   const data = await response.text();
-
   // Check if the video page contains captions
   if (!data.includes("captionTracks")) {
     console.warn(`No captions found for video: ${videoID}`);
