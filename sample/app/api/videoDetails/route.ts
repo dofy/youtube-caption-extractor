@@ -1,8 +1,7 @@
 // pages/api/videoDetails.ts
-import { type NextRequest } from 'next/server';
-import he from 'he';
-import striptags from 'striptags';
-import { NextResponse } from 'next/server';
+import he from "he";
+import { NextResponse, type NextRequest } from "next/server";
+import striptags from "striptags";
 
 interface Subtitle {
   start: string;
@@ -24,8 +23,8 @@ interface VideoDetails {
 const fetchWithUserAgent = async (url: string) => {
   const response = await fetch(url, {
     headers: {
-      'User-Agent':
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+      "User-Agent":
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
     },
   });
   if (!response.ok) {
@@ -36,18 +35,18 @@ const fetchWithUserAgent = async (url: string) => {
 
 const getVideoDetails = async (
   videoID: string,
-  lang: string = 'en'
+  lang: string = "en"
 ): Promise<VideoDetails> => {
   try {
-    console.log(`Fetching video details for ID: ${videoID}`);
+    console.log(`- Fetching video details for ID: ${videoID}`);
     const response = await fetchWithUserAgent(
       `https://youtube.com/watch?v=${videoID}`
     );
     const data = await response.text();
 
-    console.log(`Response length: ${data.length}`);
+    console.log(`- Response length: ${data.length}`);
     console.log(
-      `Response includes 'captionTracks': ${data.includes('captionTracks')}`
+      `- Response includes 'captionTracks': ${data.includes("captionTracks")}`
     );
 
     // Extract title and description from the page data
@@ -58,17 +57,16 @@ const getVideoDetails = async (
       /<meta name="description" content="([^"]*|[^"]*[^&]quot;[^"]*)">/
     );
 
-    const title = titleMatch ? titleMatch[1] : 'No title found';
-    const description = descriptionMatch
-      ? descriptionMatch[1]
-      : 'No description found';
+    const title = (titleMatch && titleMatch[1]) || "No title found";
+    const description =
+      (descriptionMatch && descriptionMatch[1]) || "No description found";
 
-    console.log(`Title: ${title}`);
-    console.log(`Description: ${description}`);
+    console.log(`- Title: ${title}`);
+    console.log(`- Description: ${description}`);
 
     // Check if the video page contains captions
-    if (!data.includes('captionTracks')) {
-      console.warn(`No captions found for video: ${videoID}`);
+    if (!data.includes("captionTracks")) {
+      console.warn(`- No captions found for video: ${videoID}`);
       return {
         title,
         description,
@@ -81,7 +79,7 @@ const getVideoDetails = async (
     const regexResult = regex.exec(data);
 
     if (!regexResult) {
-      console.warn(`Failed to extract captionTracks from video: ${videoID}`);
+      console.warn(`- Failed to extract captionTracks from video: ${videoID}`);
       return {
         title,
         description,
@@ -92,7 +90,7 @@ const getVideoDetails = async (
     const [_, captionTracksJson] = regexResult;
     const captionTracks = JSON.parse(captionTracksJson);
 
-    console.log(`Found ${captionTracks.length} caption tracks`);
+    console.log(`- Found ${captionTracks.length} caption tracks`);
 
     // Find the appropriate subtitle language track
     const subtitle =
@@ -106,7 +104,7 @@ const getVideoDetails = async (
 
     // Check if the subtitle language track exists
     if (!subtitle?.baseUrl) {
-      console.warn(`Could not find ${lang} captions for ${videoID}`);
+      console.warn(`- Could not find ${lang} captions for ${videoID}`);
       return {
         title,
         description,
@@ -114,13 +112,13 @@ const getVideoDetails = async (
       };
     }
 
-    console.log(`Fetching subtitles from URL: ${subtitle.baseUrl}`);
+    console.log(`- Fetching subtitles from URL: ${subtitle.baseUrl}`);
 
     // Fetch subtitles XML from the subtitle track URL
     const subtitlesResponse = await fetchWithUserAgent(subtitle.baseUrl);
     const transcript = await subtitlesResponse.text();
 
-    console.log(`Subtitle response length: ${transcript.length}`);
+    console.log(`- Subtitle response length: ${transcript.length}`);
 
     // Define regex patterns for extracting start and duration times
     const startRegex = /start="([\d.]+)"/;
@@ -128,9 +126,9 @@ const getVideoDetails = async (
 
     // Process the subtitles XML to create an array of subtitle objects
     const subtitles = transcript
-      .replace('<?xml version="1.0" encoding="utf-8" ?><transcript>', '')
-      .replace('</transcript>', '')
-      .split('</text>')
+      .replace('<?xml version="1.0" encoding="utf-8" ?><transcript>', "")
+      .replace("</transcript>", "")
+      .split("</text>")
       .filter((line: string) => line && line.trim())
       .reduce((acc: Subtitle[], line: string) => {
         // Extract start and duration times using regex patterns
@@ -139,7 +137,7 @@ const getVideoDetails = async (
 
         if (!startResult || !durResult) {
           console.warn(
-            `Failed to extract start or duration from line: ${line}`
+            `- Failed to extract start or duration from line: ${line}`
           );
           return acc;
         }
@@ -149,9 +147,9 @@ const getVideoDetails = async (
 
         // Clean up subtitle text by removing HTML tags and decoding HTML entities
         const htmlText = line
-          .replace(/<text.+>/, '')
-          .replace(/&amp;/gi, '&')
-          .replace(/<\/?[^>]+(>|$)/g, '');
+          .replace(/<text.+>/, "")
+          .replace(/&amp;/gi, "&")
+          .replace(/<\/?[^>]+(>|$)/g, "");
         const decodedText = he.decode(htmlText);
         const text = striptags(decodedText);
 
@@ -178,11 +176,11 @@ const getVideoDetails = async (
 
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
-  const videoID = searchParams.get('videoID');
-  const lang = searchParams.get('lang') || 'en';
+  const videoID = searchParams.get("videoID");
+  const lang = searchParams.get("lang") || "en";
 
   if (!videoID) {
-    return NextResponse.json({ error: 'Missing videoID' }, { status: 400 });
+    return NextResponse.json({ error: "Missing videoID" }, { status: 400 });
   }
 
   try {

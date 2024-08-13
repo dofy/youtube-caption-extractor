@@ -1,5 +1,7 @@
-import he from 'he';
-import striptags from 'striptags';
+import he from "he";
+import { HttpsProxyAgent } from "https-proxy-agent";
+import NodeFetch from "node-fetch";
+import striptags from "striptags";
 
 interface Subtitle {
   start: string;
@@ -14,7 +16,18 @@ interface CaptionTrack {
 
 export interface Options {
   videoID: string;
-  lang?: string;
+  lang?:
+    | "en"
+    | "zh"
+    | "ja"
+    | "ko"
+    | "es"
+    | "de"
+    | "fr"
+    | "it"
+    | "ru"
+    | (string & {});
+  proxyURL?: string;
 }
 
 export interface VideoDetails {
@@ -23,11 +36,31 @@ export interface VideoDetails {
   subtitles: Subtitle[];
 }
 
+const fetchThroughProxy = async (targetUrl: string, proxyUrl: string) => {
+  const proxyAgent = new HttpsProxyAgent(proxyUrl);
+  try {
+    const response = await NodeFetch(targetUrl, { agent: proxyAgent });
+    if (!response.ok) {
+      throw new Error(`Failed to fetch ${targetUrl} through proxy ${proxyUrl}`);
+    }
+    return response;
+  } catch (error) {
+    console.error(error);
+    throw new Error(`Failed to fetch ${targetUrl} through proxy ${proxyUrl}`);
+  } finally {
+    proxyAgent.destroy();
+  }
+};
+
 export const getVideoDetails = async ({
   videoID,
-  lang = 'en',
+  lang = "en",
+  proxyURL,
 }: Options): Promise<VideoDetails> => {
-  const response = await fetch(`https://youtube.com/watch?v=${videoID}`);
+  const youtubeUrl = `https://youtube.com/watch?v=${videoID}`;
+  const response = proxyURL
+    ? await fetchThroughProxy(youtubeUrl, proxyURL)
+    : await fetch(youtubeUrl);
   const data = await response.text();
 
   // Extract title and description from the page data
@@ -38,13 +71,21 @@ export const getVideoDetails = async ({
     /<meta name="description" content="([^"]*|[^"]*[^&]quot;[^"]*)">/
   );
 
-  const title = titleMatch ? titleMatch[1] : 'No title found';
-  const description = descriptionMatch
-    ? descriptionMatch[1]
-    : 'No description found';
+  const title = titleMatch && titleMatch[1];
+  const description =
+    (descriptionMatch && descriptionMatch[1]) || "No description found";
+
+  // if the titleMatch[1] is "", we should throw an error
+  /**
+   * - Title:
+   * - Description: YouTube でお気に入りの動画や音楽を楽しみ、オリジナルのコンテンツをアップロードして友だちや家族、世界中の人たちと共有しましょう。
+   */
+  if (!title) {
+    throw new Error(`No video found for: ${videoID}`);
+  }
 
   // Check if the video page contains captions
-  if (!data.includes('captionTracks')) {
+  if (!data.includes("captionTracks")) {
     console.warn(`No captions found for video: ${videoID}`);
     return {
       title,
@@ -97,9 +138,9 @@ export const getVideoDetails = async ({
 
   // Process the subtitles XML to create an array of subtitle objects
   const lines = transcript
-    .replace('<?xml version="1.0" encoding="utf-8" ?><transcript>', '')
-    .replace('</transcript>', '')
-    .split('</text>')
+    .replace('<?xml version="1.0" encoding="utf-8" ?><transcript>', "")
+    .replace("</transcript>", "")
+    .split("</text>")
     .filter((line: string) => line && line.trim())
     .reduce((acc: Subtitle[], line: string) => {
       // Extract start and duration times using regex patterns
@@ -116,9 +157,9 @@ export const getVideoDetails = async ({
 
       // Clean up subtitle text by removing HTML tags and decoding HTML entities
       const htmlText = line
-        .replace(/<text.+>/, '')
-        .replace(/&amp;/gi, '&')
-        .replace(/<\/?[^>]+(>|$)/g, '');
+        .replace(/<text.+>/, "")
+        .replace(/&amp;/gi, "&")
+        .replace(/<\/?[^>]+(>|$)/g, "");
       const decodedText = he.decode(htmlText);
       const text = striptags(decodedText);
 
@@ -141,14 +182,18 @@ export const getVideoDetails = async ({
 
 export const getSubtitles = async ({
   videoID,
-  lang = 'en',
+  lang = "en",
+  proxyURL,
 }: Options): Promise<Subtitle[]> => {
   // Fetch YouTube video page data
-  const response = await fetch(`https://youtube.com/watch?v=${videoID}`);
+  const youtubeUrl = `https://youtube.com/watch?v=${videoID}`;
+  const response = proxyURL
+    ? await fetchThroughProxy(youtubeUrl, proxyURL)
+    : await fetch(youtubeUrl);
   const data = await response.text();
 
   // Check if the video page contains captions
-  if (!data.includes('captionTracks')) {
+  if (!data.includes("captionTracks")) {
     console.warn(`No captions found for video: ${videoID}`);
     return [];
   }
@@ -189,9 +234,9 @@ export const getSubtitles = async ({
 
   // Process the subtitles XML to create an array of subtitle objects
   const lines = transcript
-    .replace('<?xml version="1.0" encoding="utf-8" ?><transcript>', '')
-    .replace('</transcript>', '')
-    .split('</text>')
+    .replace('<?xml version="1.0" encoding="utf-8" ?><transcript>', "")
+    .replace("</transcript>", "")
+    .split("</text>")
     .filter((line: string) => line && line.trim())
     .reduce((acc: Subtitle[], line: string) => {
       // Extract start and duration times using regex patterns
@@ -208,9 +253,9 @@ export const getSubtitles = async ({
 
       // Clean up subtitle text by removing HTML tags and decoding HTML entities
       const htmlText = line
-        .replace(/<text.+>/, '')
-        .replace(/&amp;/gi, '&')
-        .replace(/<\/?[^>]+(>|$)/g, '');
+        .replace(/<text.+>/, "")
+        .replace(/&amp;/gi, "&")
+        .replace(/<\/?[^>]+(>|$)/g, "");
       const decodedText = he.decode(htmlText);
       const text = striptags(decodedText);
 

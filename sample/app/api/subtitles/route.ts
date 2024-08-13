@@ -1,19 +1,19 @@
-import { getSubtitles, getVideoDetails } from 'youtube-caption-extractor';
-import { NextResponse } from 'next/server';
-import { type NextRequest } from 'next/server';
+import { NextResponse, type NextRequest } from "next/server";
+import { getSubtitles, getVideoDetails } from "youtube-caption-extractor";
 
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
-  const videoID = searchParams.get('videoID');
-  const lang = searchParams.get('lang') || 'en';
+  const videoID = searchParams.get("videoID");
+  const lang = searchParams.get("lang") || "en";
+  const proxyURL = searchParams.get("proxyURL") ?? undefined;
 
   if (!videoID) {
-    return NextResponse.json({ error: 'Missing videoID' }, { status: 400 });
+    return NextResponse.json({ error: "Missing videoID" }, { status: 400 });
   }
 
   try {
-    const subtitles = await getSubtitles({ videoID, lang });
-    const videoDetails = await getVideoDetails({ videoID, lang });
+    const subtitles = await getSubtitles({ videoID, lang, proxyURL });
+    const videoDetails = await getVideoDetails({ videoID, lang, proxyURL });
     return NextResponse.json({ subtitles, videoDetails }, { status: 200 });
   } catch (error) {
     return NextResponse.json(

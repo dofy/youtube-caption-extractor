@@ -1,6 +1,6 @@
 {
   "name": "youtube-captions-test",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -11,13 +11,13 @@
   "dependencies": {
     "he": "^1.2.0",
     "next": "14.2.5",
-    "react": "^18",
     "react-dom": "^18",
+    "react": "^18",
     "striptags": "^3.2.0",
-    "youtube-caption-extractor": "^1.4.3"
+    "youtube-caption-extractor": "file:../src"
   },
   "devDependencies": {
-    "@types/node": "^20",
+    "@types/node": "^22",
     "@types/react": "^18",
     "@types/react-dom": "^18",
     "postcss": "^8",
