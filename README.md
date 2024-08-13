@@ -2,7 +2,11 @@
 
 A simple and efficient package to scrape and parse captions (subtitles) from YouTube videos, supporting both user-submitted and auto-generated captions with language options. In addition, it can also retrieve the title and description of the YouTube video.
 
-## What's new in v1.4.2
+## What's new in v1.5.0
+
+- Proxy Agent support: The package now supports using a proxy agent to make requests, allowing you to fetch subtitles from YouTube behind a proxy server.
+
+## What's new in v1.4.3
 
 - TypeScript batteries included 🔋: The package is now shipped with TypeScript type definitions, making it easier to use in TypeScript projects.
 - Node.js and Edge runtime support: The package now supports both Node.js and Edge runtime environments, expanding its usability across different platforms.
@@ -11,7 +15,7 @@ A simple and efficient package to scrape and parse captions (subtitles) from You
 ## Installation
 
 ```sh
-npm install youtube-caption-extractor
+npm install @dofy/youtube-caption-extractor
 ```
 
 ## Usage
@@ -19,7 +23,7 @@ npm install youtube-caption-extractor
 In a server-side environment or Node.js
 
 ```js
-import { getSubtitles, getVideoDetails } from 'youtube-caption-extractor';
+import { getSubtitles, getVideoDetails } from '@dofy/youtube-caption-extractor';
 
 // Fetching Subtitles
 const fetchSubtitles = async (videoID, lang = 'en') => {
@@ -54,6 +58,7 @@ fetchVideoDetails(videoID, lang);
 
 - `videoID` (string) - The YouTube video ID
 - `lang` (string) - Optional, the language code for the subtitles (e.g., 'en', 'fr', 'de'). Default is 'en' (English)
+- `proxyUrl` (string) - Optional, the URL of the proxy server to use for making requests. Default is `undefined`
 
 Returns a promise that resolves to an array of subtitle objects with the following properties:
 
@@ -65,6 +70,7 @@ Returns a promise that resolves to an array of subtitle objects with the followi
 
 - `videoID` (string) - The YouTube video ID
 - `lang` (string) - Optional, the language code for the subtitles (e.g., 'en', 'fr', 'de'). Default is 'en' (English)
+- `proxyUrl` (string) - Optional, the URL of the proxy server to use for making requests. Default is `undefined`
 
 Returns a promise that resolves to a VideoDetails object with the following properties:
 
@@ -84,7 +90,7 @@ For example, in a Next.js project you can create an API route like this:
 2. Inside the `fetch-subtitles.js` file, add the following code:
 
 ```js
-import { getSubtitles, getVideoDetails } from 'youtube-caption-extractor';
+import { getSubtitles, getVideoDetails } from '@dofy/youtube-caption-extractor';
 
 export default async function handler(req, res) {
   const { videoID, lang } = req.query;
