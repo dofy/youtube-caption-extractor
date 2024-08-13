@@ -23,33 +23,34 @@ npm install @dofy/youtube-caption-extractor
 In a server-side environment or Node.js
 
 ```js
-import { getSubtitles, getVideoDetails } from '@dofy/youtube-caption-extractor';
+import { getSubtitles, getVideoDetails } from "@dofy/youtube-caption-extractor";
 
 // Fetching Subtitles
-const fetchSubtitles = async (videoID, lang = 'en') => {
+const fetchSubtitles = async (videoID, lang = "en", proxyUrl) => {
   try {
-    const subtitles = await getSubtitles({ videoID, lang });
+    const subtitles = await getSubtitles({ videoID, lang, proxyUrl });
     console.log(subtitles);
   } catch (error) {
-    console.error('Error fetching subtitles:', error);
+    console.error("Error fetching subtitles:", error);
   }
 };
 
 // Fetching Video Details
-const fetchVideoDetails = async (videoID, lang = 'en') => {
+const fetchVideoDetails = async (videoID, lang = "en", proxyUrl) => {
   try {
-    const videoDetails = await getVideoDetails({ videoID, lang });
+    const videoDetails = await getVideoDetails({ videoID, lang, proxyUrl });
     console.log(videoDetails);
   } catch (error) {
-    console.error('Error fetching video details:', error);
+    console.error("Error fetching video details:", error);
   }
 };
 
-const videoID = 'video_id_here';
-const lang = 'en'; // Optional, default is 'en' (English)
+const videoID = "video_id_here";
+const lang = "en"; // Optional, default is 'en' (English)
+const proxyUrl = "http://your-proxy-server-url.com"; // Optional, default is undefined
 
-fetchSubtitles(videoID, lang);
-fetchVideoDetails(videoID, lang);
+fetchSubtitles(videoID, lang, proxyUrl);
+fetchVideoDetails(videoID, lang, proxyUrl);
 ```
 
 ## API
@@ -90,7 +91,7 @@ For example, in a Next.js project you can create an API route like this:
 2. Inside the `fetch-subtitles.js` file, add the following code:
 
 ```js
-import { getSubtitles, getVideoDetails } from '@dofy/youtube-caption-extractor';
+import { getSubtitles, getVideoDetails } from "@dofy/youtube-caption-extractor";
 
 export default async function handler(req, res) {
   const { videoID, lang } = req.query;
@@ -108,17 +109,17 @@ export default async function handler(req, res) {
 3. Now, in your client-side component, you can fetch subtitles using the API route:
 
 ```js
-import { useEffect, useState } from 'react';
+import { useEffect, useState } from "react";
 
 const MyComponent = () => {
   const [subtitles, setSubtitles] = useState([]);
   const [videoDetails, setVideoDetails] = useState({});
 
-  const videoID = 'video_id_here';
-  const lang = 'en'; // Optional, default is 'en' (English)
+  const videoID = "video_id_here";
+  const lang = "en"; // Optional, default is 'en' (English)
 
   useEffect(() => {
-    const fetchSubtitles = async (videoID, lang = 'en') => {
+    const fetchSubtitles = async (videoID, lang = "en") => {
       try {
         const response = await fetch(
           `/api/fetch-subtitles?videoID=${videoID}&lang=${lang}`
@@ -127,7 +128,7 @@ const MyComponent = () => {
         setSubtitles(data.subtitles);
         setVideoDetails(data.videoDetails);
       } catch (error) {
-        console.error('Error fetching subtitles:', error);
+        console.error("Error fetching subtitles:", error);
       }
     };
 
